@@ -11,10 +11,10 @@ A simple FastAPI application with a `/ping` endpoint.
 
 2. Run the application:
    ```bash
-   uvicorn main:app --reload
+   python -m uvicorn main:app --host 0.0.0.0 --port 8000
    ```
 
-3. Test the `/ping` endpoint:
+3. Test the `/ping` endpoint to validate the server is running:
    ```bash
    curl http://localhost:8000/ping
    ```
