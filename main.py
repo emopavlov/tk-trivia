@@ -1,11 +1,23 @@
-import csv
 import random
-from pathlib import Path
+import re
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from data_store import trivia_store
 
 app = FastAPI()
+
+
+class VerifyAnswerRequest(BaseModel):
+    question_id: int
+    user_answer: str
+
+
+class VerifyAnswerResponse(BaseModel):
+    correct: bool
+    ai_response: str # TODO not really an AI response
 
 
 @app.get("/ping")
@@ -25,35 +37,55 @@ def get_question(round: str, value: str):
     Returns:
         A random question matching the criteria
     """
-    csv_path = Path("resources/JEOPARDY_CSV.csv")
+    records = trivia_store.get_all_records()
     
-    if not csv_path.exists():
-        raise HTTPException(status_code=500, detail="CSV database not found")
+    # Filter records by round and value
+    matching_records = [
+        record for record in records 
+        if record.round == round and record.value == value
+    ]
     
-    matching_questions = []
-    
-    try:
-        with open(csv_path, 'r', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                # Strip whitespace from keys and values to handle CSV formatting
-                row = {k.strip(): v.strip() for k, v in row.items()}
-                if row['Round'] == round and row['Value'] == value:
-                    matching_questions.append({
-                        "question_id": int(row['Show Number']),
-                        "round": row['Round'],
-                        "category": row['Category'],
-                        "value": row['Value'],
-                        "question": row['Question']
-                    })
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading CSV file: {str(e)}")
-    
-    if not matching_questions:
+    if not matching_records:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"No questions found for round='{round}' and value='{value}'"
         )
     
-    # Return a random question from the matching ones
-    return random.choice(matching_questions)
+    # Select a random record
+    selected_record = random.choice(matching_records)
+    
+    # Return the question data (without the answer)
+    return {
+        "question_id": selected_record.show_number,
+        "round": selected_record.round,
+        "category": selected_record.category,
+        "value": selected_record.value,
+        "question": selected_record.question
+    }
+
+
+@app.post("/verify-answer/", response_model=VerifyAnswerResponse)
+def verify_answer(request: VerifyAnswerRequest):
+    """
+    Verify a user's answer against the correct answer for a given question ID.
+    
+    Args:
+        request: Contains question_id and user_answer
+    
+    Returns:
+        VerifyAnswerResponse with correct status, correct answer, and optional explanation
+    """
+    record = trivia_store.get_record_by_question_id(request.question_id)
+    
+    if not record:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Question with ID {request.question_id} not found"
+        )
+    
+    is_correct = request.user_answer == record.answer
+    
+    return VerifyAnswerResponse(
+        correct=is_correct,
+        ai_response=record.answer
+    )
