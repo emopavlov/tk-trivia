@@ -32,6 +32,9 @@ Run the test suite to verify functionality:
 ```bash
 python -m pytest test_main.py -v
 ```
+## Continuous Integration
+
+The project includes a GitHub Actions workflow that automatically runs tests on every commit to the main branch and on pull requests.
 
 ## Endpoints
 
