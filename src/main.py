@@ -1,10 +1,18 @@
 import random
+import logging
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .data_store import trivia_store
 from .openai_client import openai_client
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Changed from INFO to DEBUG
+
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 app = FastAPI()
 
@@ -55,7 +63,7 @@ def get_question(round: str, value: str):
     
     # Return the question data (without the answer)
     return {
-        "question_id": selected_record.show_number,
+        "question_id": selected_record.question_id,
         "round": selected_record.round,
         "category": selected_record.category,
         "value": selected_record.value,

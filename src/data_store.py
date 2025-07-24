@@ -6,10 +6,14 @@ hiding the implementation details (CSV file) from the API layer.
 """
 
 import csv
+import logging
 from pathlib import Path
 from typing import List, Dict, Optional
 from fastapi import HTTPException
 from pydantic import BaseModel
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
 
 
 class TriviaRecord(BaseModel):
@@ -63,6 +67,7 @@ class TriviaDataStore:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error reading data source: {str(e)}")
         
+        logger.info(f"Loaded {len(records)}, last record_id: {records[-1].question_id if records else 'N/A'}")
         return records
     
     def get_record_by_question_id(self, question_id: int) -> Optional[TriviaRecord]:
