@@ -11,7 +11,7 @@ A simple FastAPI application with a `/ping` endpoint and a trivia question endpo
 
 2. Run the application:
    ```bash
-   python -m uvicorn main:app --host 0.0.0.0 --port 8000
+   python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
    ```
 
 3. Test the `/ping` endpoint to validate the server is running:
@@ -39,16 +39,34 @@ The project includes a GitHub Actions workflow that automatically runs tests on 
 ## Endpoints
 
 - **GET `/ping`**: Health check endpoint that returns an empty JSON response with status 200
-- **GET `/question/?round={round}&value={value}`**: Returns a random trivia question from the CSV database matching the specified round and value
 
-## Example Response
+- **GET `/question/?round={round}&value={value}`**: Returns a random trivia question from our database matching the specified round and value
+### Example Response
 
 ```json
 {
-  "question_id": 4680,
-  "round": "Jeopardy!",
-  "category": "HISTORY",
-  "value": "$200",
-  "question": "For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory"
+   "question_id": 4680,
+   "round": "Jeopardy!",
+   "category": "HISTORY",
+   "value": "$200",
+   "question": "For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory"
+}
+```
+
+- **POST `/verify-answer/`**: Validates the provided answer
+#### Example body
+
+```json
+{
+    "question_id": 4695,
+    "user_answer": "Denmark"
+}
+```
+
+#### Example response
+```json
+{
+   "is_correct": true,
+   "ai_response": "Yes, Copernicus proposed the heliocentric theory."
 }
 ```

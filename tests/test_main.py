@@ -3,7 +3,7 @@ import tempfile
 import csv
 from pathlib import Path
 from fastapi.testclient import TestClient
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, AsyncMock
 
 from src.main import app
 

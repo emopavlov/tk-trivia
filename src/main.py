@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .data_store import trivia_store
+from .openai_client import openai_client
 
 app = FastAPI()
 
@@ -15,7 +16,7 @@ class VerifyAnswerRequest(BaseModel):
 
 class VerifyAnswerResponse(BaseModel):
     correct: bool
-    ai_response: str # TODO not really an AI response
+    ai_response: str
 
 
 @app.get("/ping")
@@ -63,15 +64,15 @@ def get_question(round: str, value: str):
 
 
 @app.post("/verify-answer/", response_model=VerifyAnswerResponse)
-def verify_answer(request: VerifyAnswerRequest):
+async def verify_answer(request: VerifyAnswerRequest):
     """
-    Verify a user's answer against the correct answer for a given question ID.
+    Verify a user's answer against the correct answer for a given question ID using AI.
     
     Args:
         request: Contains question_id and user_answer
     
     Returns:
-        VerifyAnswerResponse with correct status, correct answer, and optional explanation
+        VerifyAnswerResponse with correct status, AI response, and explanation
     """
     record = trivia_store.get_record_by_question_id(request.question_id)
     
@@ -81,9 +82,24 @@ def verify_answer(request: VerifyAnswerRequest):
             detail=f"Question with ID {request.question_id} not found"
         )
     
-    is_correct = request.user_answer == record.answer
+    try:
+        # Use OpenAI to verify the answer
+        ai_result = await openai_client.verify_trivia_answer(
+            question=record.question,
+            correct_answer=record.answer,
+            user_answer=request.user_answer,
+            category=record.category
+        )
+        
+        return VerifyAnswerResponse(
+            correct=ai_result["is_correct"],
+            ai_response=ai_result["explanation"]
+        )
     
-    return VerifyAnswerResponse(
-        correct=is_correct,
-        ai_response=record.answer
-    )
+    except Exception as e:
+        # Fallback to simple string comparison if AI verification fails
+        is_correct = request.user_answer == record.answer
+        return VerifyAnswerResponse(
+            correct=is_correct,
+            ai_response=record.answer
+        )
