@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch, mock_open
 from fastapi import HTTPException
 
-from data_store import TriviaRecord, TriviaDataStore, trivia_store
+from src.data_store import TriviaRecord, TriviaDataStore, trivia_store
 
 
 # Sample test data
@@ -71,7 +71,7 @@ class TestTriviaRecord:
             answer="Test answer 2"
         )
         
-        record_dict = record.dict()
+        record_dict = record.model_dump()
         
         assert record_dict["question_id"] == 2
         assert record_dict["show_number"] == 4681
@@ -108,7 +108,9 @@ class TestTriviaDataStore:
     def test_init_default_path(self):
         """Test TriviaDataStore initialization with default path"""
         store = TriviaDataStore()
-        assert str(store.data_path) == "resources/JEOPARDY_CSV.csv"
+        # Path should be resolved to absolute path relative to project root
+        assert store.data_path.name == "JEOPARDY_CSV.csv"
+        assert "resources" in str(store.data_path)
 
     def test_init_custom_path(self):
         """Test TriviaDataStore initialization with custom path"""
@@ -303,7 +305,9 @@ class TestGlobalTriviaStore:
 
     def test_global_instance_default_path(self):
         """Test that global instance uses default path"""
-        assert str(trivia_store.data_path) == "resources/JEOPARDY_CSV.csv"
+        # Path should be resolved to absolute path relative to project root
+        assert trivia_store.data_path.name == "JEOPARDY_CSV.csv"
+        assert "resources" in str(trivia_store.data_path)
 
 
 class TestIntegration:

@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from unittest.mock import patch, mock_open
 
-from main import app
+from src.main import app
 
 
 # Test client for FastAPI
@@ -37,7 +37,7 @@ class TestGetQuestion:
         temp_file.close()
         return temp_file.name
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_success(self, mock_path):
         """Test successful retrieval of a question"""
         # Create temporary CSV file
@@ -63,7 +63,7 @@ class TestGetQuestion:
         # Clean up
         Path(temp_csv).unlink()
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_no_matches(self, mock_path):
         """Test when no questions match the criteria"""
         mock_path.return_value.exists.return_value = True
@@ -74,7 +74,7 @@ class TestGetQuestion:
         assert response.status_code == 404
         assert "No questions found" in response.json()["detail"]
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_csv_not_found(self, mock_path):
         """Test when CSV file doesn't exist"""
         mock_path.return_value.exists.return_value = False
@@ -83,7 +83,7 @@ class TestGetQuestion:
         
         assert response.status_code == 404
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_csv_read_error(self, mock_path):
         """Test when there's an error reading the CSV file"""
         mock_path.return_value.exists.return_value = True
@@ -108,7 +108,7 @@ class TestGetQuestion:
         response = client.get("/question/?value=$200")
         assert response.status_code == 422
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_randomness(self, mock_path):
         """Test that the function returns different questions when multiple matches exist"""
         mock_path.return_value.exists.return_value = True
@@ -138,7 +138,7 @@ class TestGetQuestion:
         unique_questions = set(responses)
         assert len(unique_questions) >= 1  # At least one unique question
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_get_question_special_characters(self, mock_path):
         """Test handling of special characters in round and value parameters"""
         mock_path.return_value.exists.return_value = True
@@ -183,7 +183,7 @@ class TestPingEndpoint:
 class TestVerifyAnswerEndpoint:
     """Test cases for the verify-answer endpoint"""
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_verify_answer_correct(self, mock_path):
         """Test successful answer verification with correct answer"""
         mock_path.return_value.exists.return_value = True
@@ -206,7 +206,7 @@ class TestVerifyAnswerEndpoint:
         assert data["correct"] is True
         assert data["ai_response"] == "Copernicus"
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_verify_answer_incorrect(self, mock_path):
         """Test answer verification with incorrect answer"""
         mock_path.return_value.exists.return_value = True
@@ -230,7 +230,7 @@ class TestVerifyAnswerEndpoint:
         assert data["correct"] is False
         assert data["ai_response"] == "Copernicus"
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_verify_answer_question_not_found(self, mock_path):
         """Test when question ID doesn't exist"""
         mock_path.return_value.exists.return_value = True
@@ -251,7 +251,7 @@ class TestVerifyAnswerEndpoint:
         assert response.status_code == 404
         assert "Question with ID 9999 not found" in response.json()["detail"]
 
-    @patch('data_store.Path')
+    @patch('src.data_store.Path')
     def test_verify_answer_csv_not_found(self, mock_path):
         """Test when CSV file doesn't exist"""
         mock_path.return_value.exists.return_value = False

@@ -1,11 +1,9 @@
 import random
-import re
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from data_store import trivia_store
+from .data_store import trivia_store
 
 app = FastAPI()
 

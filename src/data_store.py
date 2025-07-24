@@ -28,7 +28,13 @@ class TriviaDataStore:
     """Data access layer for trivia questions"""
     
     def __init__(self, data_path: str = "resources/JEOPARDY_CSV.csv"):
-        self.data_path = Path(data_path)
+        # Resolve path relative to project root (parent of src folder)
+        if not Path(data_path).is_absolute():
+            src_dir = Path(__file__).parent
+            project_root = src_dir.parent
+            self.data_path = project_root / data_path
+        else:
+            self.data_path = Path(data_path)
     
     def get_all_records(self) -> List[TriviaRecord]:
         """Load all records from the data source"""
