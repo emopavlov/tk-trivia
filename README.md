@@ -49,3 +49,17 @@ python -m pytest tests/ -v
 ## Continuous Integration
 
 The project includes a GitHub Actions workflow that automatically runs tests on every commit to the main branch and on pull requests.
+
+## Backlog
+
+The following tasks are open:
+
+- [Requirement] Limit questions only up to the $1200 value.
+- [Requirement] Add an AI agent to play the game.
+- [Requirement] Use a database to store the questions.
+
+## Limitations
+
+- [Performance] Currently the CVS file is read on every request. This can be read once and cached.
+- [Tests] Tests should be reviewed, they missed some simple errors.
+- [CI/CD] Containarise the project so it can be easily run and deployed.
