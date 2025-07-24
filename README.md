@@ -46,6 +46,19 @@ Run the test suite to verify functionality:
 ```bash
 python -m pytest tests/ -v
 ```
+
+## Contributing
+
+The projects has a simple structure with:
+- `src` holding production code files
+- `resources` holding data files
+- `tests` holding test code files
+
+The main entry point is `main.py` which is a FastAPI application.
+It defines the endpoints that the program exposes.
+`data_store` is an abstarction for reading the questions database.
+`openapi_client` is a proxy for calling OpenAI's API.
+
 ## Continuous Integration
 
 The project includes a GitHub Actions workflow that automatically runs tests on every commit to the main branch and on pull requests.
