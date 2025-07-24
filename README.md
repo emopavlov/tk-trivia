@@ -36,6 +36,10 @@ A simple FastAPI application for playing TK Trivia where your answers are judged
 
 The server will be available at `http://localhost:8000`. See the OpenAPI doc for further details.
 
+Swagger UI is available at `http://localhost:8000/docs` where you can view and try out the avaialble endpoints.
+
+In short, you can get random questions using the `/question` endpoint and submit your answers using the `/verify-answer` endpoint.
+
 ## Testing
 
 Run the test suite to verify functionality:
@@ -45,38 +49,3 @@ python -m pytest tests/ -v
 ## Continuous Integration
 
 The project includes a GitHub Actions workflow that automatically runs tests on every commit to the main branch and on pull requests.
-
-## Endpoints
-
-- **GET `/ping`**: Health check endpoint that returns an empty JSON response with status 200
-
-- **GET `/question/?round={round}&value={value}`**: Returns a random trivia question from our database matching the specified round and value
-### Example Response
-
-```json
-{
-   "question_id": 4680,
-   "round": "Jeopardy!",
-   "category": "HISTORY",
-   "value": "$200",
-   "question": "For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory"
-}
-```
-
-- **POST `/verify-answer/`**: Validates the provided answer
-#### Example body
-
-```json
-{
-    "question_id": 4695,
-    "user_answer": "Denmark"
-}
-```
-
-#### Example response
-```json
-{
-   "is_correct": true,
-   "ai_response": "Yes, Copernicus proposed the heliocentric theory."
-}
-```
