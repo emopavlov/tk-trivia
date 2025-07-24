@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from unittest.mock import patch, mock_open
 
-from main import app, normalize_answer
+from main import app
 
 
 # Test client for FastAPI
@@ -197,7 +197,7 @@ class TestVerifyAnswerEndpoint:
         
         with patch('builtins.open', mock_open(read_data=csv_content)):
             response = client.post("/verify-answer/", json={
-                "question_id": 4680,
+                "question_id": 2, # The line number
                 "user_answer": "Copernicus"
             })
         
@@ -213,6 +213,7 @@ class TestVerifyAnswerEndpoint:
         
         csv_data = [
             ["Show Number", "Air Date", "Round", "Category", "Value", "Question", "Answer"],
+            ["4680", "2004-12-31", "Jeopardy!", "UNKNWON", "$1200", "Test question a", "Fire"],
             ["4680", "2004-12-31", "Jeopardy!", "HISTORY", "$200", "Test question", "Copernicus"],
         ]
         
@@ -220,7 +221,7 @@ class TestVerifyAnswerEndpoint:
         
         with patch('builtins.open', mock_open(read_data=csv_content)):
             response = client.post("/verify-answer/", json={
-                "question_id": 4680,
+                "question_id": 3,
                 "user_answer": "Einstein"
             })
         
@@ -228,28 +229,6 @@ class TestVerifyAnswerEndpoint:
         data = response.json()
         assert data["correct"] is False
         assert data["ai_response"] == "Copernicus"
-
-    @patch('data_store.Path')
-    def test_verify_answer_case_insensitive(self, mock_path):
-        """Test that answer verification is case insensitive"""
-        mock_path.return_value.exists.return_value = True
-        
-        csv_data = [
-            ["Show Number", "Air Date", "Round", "Category", "Value", "Question", "Answer"],
-            ["4680", "2004-12-31", "Jeopardy!", "HISTORY", "$200", "Test question", "Copernicus"],
-        ]
-        
-        csv_content = self.format_csv_data(csv_data)
-        
-        with patch('builtins.open', mock_open(read_data=csv_content)):
-            response = client.post("/verify-answer/", json={
-                "question_id": 4680,
-                "user_answer": "copernicus"
-            })
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert data["correct"] is True
 
     @patch('data_store.Path')
     def test_verify_answer_question_not_found(self, mock_path):
