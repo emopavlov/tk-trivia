@@ -1,6 +1,6 @@
 # tk-trivia
 
-A simple FastAPI application with a `/ping` endpoint.
+A simple FastAPI application with a `/ping` endpoint and a trivia question endpoint that reads from a CSV database.
 
 ## Setup
 
@@ -19,4 +19,33 @@ A simple FastAPI application with a `/ping` endpoint.
    curl http://localhost:8000/ping
    ```
 
-The server will be available at `http://localhost:8000` and the `/ping` endpoint will return an empty JSON response with status 200.
+4. Test the `/question/` endpoint to get a random trivia question:
+   ```bash
+   curl "http://localhost:8000/question/?round=Jeopardy!&value=\$200"
+   ```
+
+The server will be available at `http://localhost:8000`.
+
+## Testing
+
+Run the test suite to verify functionality:
+```bash
+python -m pytest test_main.py -v
+```
+
+## Endpoints
+
+- **GET `/ping`**: Health check endpoint that returns an empty JSON response with status 200
+- **GET `/question/?round={round}&value={value}`**: Returns a random trivia question from the CSV database matching the specified round and value
+
+## Example Response
+
+```json
+{
+  "question_id": 4680,
+  "round": "Jeopardy!",
+  "category": "HISTORY",
+  "value": "$200",
+  "question": "For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory"
+}
+```
