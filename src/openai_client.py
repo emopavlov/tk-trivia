@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from typing import Optional
 
 import httpx
@@ -118,5 +119,18 @@ Example response:
                 raise Exception(f"Unexpected error calling OpenAI API: {e}")
 
 
+def _is_test_environment() -> bool:
+    """Check if we're running in a test environment."""
+    return (
+        "pytest" in sys.modules or 
+        "test" in sys.argv[0] or 
+        any("test" in arg for arg in sys.argv)
+    )
+
+
 # Global instance to be used throughout the application
-openai_client = OpenAIClient()
+# Use a test API key when running tests to avoid loading the real one
+if _is_test_environment():
+    openai_client = OpenAIClient(api_key="test-api-key-for-testing")
+else:
+    openai_client = OpenAIClient()
